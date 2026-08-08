@@ -13,6 +13,9 @@ model User {
   email    String @unique
   password String
   role     String @default("customer")
+  
+  // Relation with Order
+  orders   Order[] // 👈 Add this
 }
 
 model Product {
@@ -24,6 +27,9 @@ model Product {
   images   String[] @default([])
   colors   String[] @default([])
   variants Json?
+  
+  // Relation with Order
+  orders   Order[] // 👈 Add this
 }
 
 model Order {
@@ -33,4 +39,8 @@ model Order {
   quantity   Int
   color      String?
   status     String @default("pending")
+  
+  // Relations
+  user     User    @relation(fields: [userId], references: [id])      // 👈 Add this
+  product  Product @relation(fields: [productId], references: [id])   // 👈 Add this
 }

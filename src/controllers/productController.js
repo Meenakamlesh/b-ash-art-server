@@ -1,6 +1,5 @@
-const { PrismaClient } = require("@prisma/client");
+const prisma = require("../utils/prisma");
 const cloudinary = require("../utils/cloudinaryClient");
-const prisma = new PrismaClient();
 
 const uploadToCloudinary = (fileBuffer) => {
   return new Promise((resolve, reject) => {
@@ -60,7 +59,6 @@ const createProduct = async (req, res) => {
       }
       imageUrls = variants.map((v) => v.imageUrl).filter(Boolean);
     } else {
-      // No colors — simple single stock
       totalStock = Number(req.body.stock) || 0;
       if (fileMap["default"]) {
         const result = await uploadToCloudinary(fileMap["default"].buffer);
@@ -88,6 +86,7 @@ const createProduct = async (req, res) => {
 };
 
 // @desc    Get all products
+// @route   GET /api/products
 const getProducts = async (req, res) => {
   try {
     const products = await prisma.product.findMany({ orderBy: { id: "desc" } });
@@ -99,6 +98,7 @@ const getProducts = async (req, res) => {
 };
 
 // @desc    Get single product
+// @route   GET /api/products/:id
 const getProductById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -111,7 +111,8 @@ const getProductById = async (req, res) => {
   }
 };
 
-// @desc    Update product (full edit — name, price, colors, images)
+// @desc    Update product (full edit)
+// @route   PUT /api/products/:id
 const updateProduct = async (req, res) => {
   try {
     const { id } = req.params;
@@ -192,12 +193,12 @@ const updateProduct = async (req, res) => {
   }
 };
 
-// @desc    Quick stock update (Inventory page se, bina images ke)
+// @desc    Quick stock update (Inventory page)
 // @route   PUT /api/products/:id/stock
 const updateStock = async (req, res) => {
   try {
     const { id } = req.params;
-    const { variants, stock } = req.body; // variants = [{color, stock}] OR simple stock
+    const { variants, stock } = req.body;
 
     const existingProduct = await prisma.product.findUnique({ where: { id: Number(id) } });
     if (!existingProduct) return res.status(404).json({ message: "Product not found" });
@@ -228,6 +229,7 @@ const updateStock = async (req, res) => {
 };
 
 // @desc    Delete product
+// @route   DELETE /api/products/:id
 const deleteProduct = async (req, res) => {
   try {
     const { id } = req.params;
