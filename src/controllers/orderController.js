@@ -1,8 +1,6 @@
 const prisma = require("../utils/prisma");
 const { sendAdminOrderEmail, sendCustomerOrderEmail, sendOrderStatusUpdateEmail } = require("../utils/emailService");
 
-
-
 // @desc    Create a new order
 // @route   POST /api/orders
 const createOrder = async (req, res) => {
@@ -76,31 +74,36 @@ const createOrder = async (req, res) => {
       data: { stock: newTotalStock, variants: updatedVariants },
     });
 
-    // ✅ SEND BOTH EMAILS - Admin AND Customer
-    try {
-      // 1. Admin ko email
-      await sendAdminOrderEmail(order, product, user);
+    // ✅ FIX: Send emails in BACKGROUND - NO AWAIT
+    // Order response immediately aayega, emails background mein send hongi
+    setImmediate(() => {
+      // Admin email
+      sendAdminOrderEmail(order, product, user)
+        .then(() => console.log(`✅ Admin email sent for order #${order.id}`))
+        .catch((err) => console.error(`❌ Admin email failed:`, err.message));
       
-      // 2. Customer ko email
-      await sendCustomerOrderEmail(order, product, user);
-      
-      console.log(`✅ Both emails sent for order #${order.id}`);
-    } catch (emailError) {
-      console.error('❌ Email sending error:', emailError.message);
-    }
-
-    res.status(201).json({ 
-      message: "Order placed successfully", 
-      order,
-      emailsSent: true 
+      // Customer email
+      sendCustomerOrderEmail(order, product, user)
+        .then(() => console.log(`✅ Customer email sent for order #${order.id}`))
+        .catch((err) => console.error(`❌ Customer email failed:`, err.message));
     });
+
+    // ✅ Response immediately - email ke intezaar ke bina
+    res.status(201).json({ 
+      success: true,
+      message: "Order placed successfully", 
+      order 
+    });
+
   } catch (error) {
     console.error("Create Order Error:", error.message);
-    res.status(500).json({ message: "Internal server error" });
+    res.status(500).json({ 
+      success: false,
+      message: "Internal server error" 
+    });
   }
 };
 
-// ... rest of your controller functions remain same ...
 // @desc    Get logged-in user's orders
 // @route   GET /api/orders/my-orders
 const getMyOrders = async (req, res) => {
@@ -172,7 +175,6 @@ const updateOrderStatus = async (req, res) => {
       return res.status(404).json({ message: "Order not found" });
     }
 
-    // ✅ Get user and product data separately
     const [user, product] = await Promise.all([
       prisma.user.findUnique({
         where: { id: existingOrder.userId },
@@ -189,13 +191,13 @@ const updateOrderStatus = async (req, res) => {
       data: { status },
     });
 
-    // ✅ Send status update email (if user and product exist)
+    // ✅ FIX: Status update email in BACKGROUND
     if (user && product) {
-      try {
-        await sendOrderStatusUpdateEmail(existingOrder, user, product);
-      } catch (emailError) {
-        console.error('Email error:', emailError.message);
-      }
+      setImmediate(() => {
+        sendOrderStatusUpdateEmail(existingOrder, user, product)
+          .then(() => console.log(`✅ Status email sent for order #${id}`))
+          .catch((err) => console.error(`❌ Status email failed:`, err.message));
+      });
     }
 
     res.status(200).json({ 
