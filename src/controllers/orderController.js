@@ -1,5 +1,3 @@
-// server/src/controllers/orderController.js
-
 const prisma = require("../utils/prisma");
 const { sendAdminOrderEmail, sendCustomerOrderEmail, sendOrderStatusUpdateEmail } = require("../utils/emailService");
 
