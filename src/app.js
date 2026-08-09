@@ -30,6 +30,13 @@ app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/orders", orderRoutes);
 
+app.get("/health", (req, res) => {
+  res.status(200).json({
+    status: "OK",
+    message: "Backend is running"
+  });
+});
+
 app.get("/", (req, res) => {
     res.send("API is running...");
 });
