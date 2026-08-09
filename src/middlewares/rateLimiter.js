@@ -5,7 +5,7 @@ const limiters = {
     // General API limiter
     general: rateLimit({
         windowMs: 15 * 60 * 1000,
-        max: 100,
+        max: 500,
         message: {
             success: false,
             error: 'Too many requests. Please try again in 15 minutes.'
