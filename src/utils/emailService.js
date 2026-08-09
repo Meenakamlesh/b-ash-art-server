@@ -7,13 +7,16 @@ const sendAdminOrderEmail = async (order, product, user) => {
   try {
     const adminEmail = process.env.ADMIN_EMAIL;
     
-    // ✅ Check if admin email is set
+    console.log(`📧 ===== ADMIN EMAIL =====`);
+    console.log(`📧 Admin email address: ${adminEmail}`);
+    console.log(`📧 Order ID: ${order.id}`);
+    console.log(`📧 Customer: ${user.name}`);
+    
     if (!adminEmail || adminEmail === "admin@yourstore.com") {
-      console.error("❌ ADMIN_EMAIL not configured in .env file");
+      console.error("❌ ADMIN_EMAIL is not configured properly!");
+      console.error(`❌ Current value: "${adminEmail}"`);
       return false;
     }
-    
-    console.log(`📧 Sending admin email to: ${adminEmail}`);
     
     const html = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
@@ -53,6 +56,7 @@ const sendAdminOrderEmail = async (order, product, user) => {
     return result;
   } catch (error) {
     console.error('❌ Admin email error:', error.message);
+    console.error('❌ Full error:', error);
     return false;
   }
 };
@@ -60,7 +64,9 @@ const sendAdminOrderEmail = async (order, product, user) => {
 // Customer Order Confirmation Email
 const sendCustomerOrderEmail = async (order, product, user) => {
   try {
-    console.log(`📧 Sending customer email to: ${user.email}`);
+    console.log(`📧 ===== CUSTOMER EMAIL =====`);
+    console.log(`📧 Customer email: ${user.email}`);
+    console.log(`📧 Order ID: ${order.id}`);
     
     const html = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
@@ -102,6 +108,7 @@ const sendCustomerOrderEmail = async (order, product, user) => {
     return result;
   } catch (error) {
     console.error('❌ Customer email error:', error.message);
+    console.error('❌ Full error:', error);
     return false;
   }
 };

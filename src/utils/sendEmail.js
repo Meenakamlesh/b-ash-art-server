@@ -3,7 +3,7 @@
 const nodemailer = require("nodemailer");
 require("dotenv").config();
 
-// ✅ Verify credentials on startup
+// ✅ Check credentials
 if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
   console.error("❌ ERROR: EMAIL_USER or EMAIL_PASS not set in .env");
 }
@@ -23,25 +23,31 @@ const transporter = nodemailer.createTransport({
 transporter.verify((error, success) => {
   if (error) {
     console.error("❌ Email transporter error:", error.message);
+    console.error("❌ Full error:", error);
   } else {
-    console.log("✅ Email transporter ready");
+    console.log("✅ Email transporter ready to send emails");
   }
 });
 
 const sendEmail = async ({ to, subject, html }) => {
   try {
-    console.log(`📧 Sending email to: ${to}`);
+    console.log(`📧 Attempting to send email to: ${to}`);
+    console.log(`📧 Subject: ${subject}`);
+    
     const info = await transporter.sendMail({
       from: `"B Ash Arts Orders" <${process.env.EMAIL_USER}>`,
       to,
       subject,
       html,
     });
+    
     console.log(`✅ Email sent to ${to}: ${info.messageId}`);
     return info;
   } catch (error) {
     console.error(`❌ Email failed for ${to}:`, error.message);
-    throw error; // ✅ Throw error so caller knows it failed
+    console.error(`❌ Error code:`, error.code);
+    console.error(`❌ Response:`, error.response);
+    throw error;
   }
 };
 
