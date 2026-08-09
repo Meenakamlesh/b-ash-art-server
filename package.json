@@ -11,7 +11,7 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
-    "@getbrevo/brevo": "^6.0.2",
+    "@getbrevo/brevo": "^3.0.1",
     "@prisma/client": "^6.16.2",
     "bcrypt": "^6.0.0",
     "cloudinary": "^2.10.0",
