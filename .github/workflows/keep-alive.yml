@@ -1,0 +1,13 @@
+name: Keep Server Alive
+
+on:
+  schedule:
+    - cron: '*/14 * * * *'
+  workflow_dispatch:
+
+jobs:
+  keep-alive:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Backend
+        run: curl -I https://b-ash-art-server.onrender.com
